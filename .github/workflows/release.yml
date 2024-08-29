@@ -7,7 +7,6 @@ on:
 
 jobs:
   build-android:
-    name: build
     runs-on: ubuntu-22.04
     steps:
       - name: 'Checkout the JDK source'
@@ -23,15 +22,13 @@ jobs:
           unzip android-linux-aarch64.zip -d /tmp/
           mv /tmp/android-linux-aarch64/libjdk.a /tmp/
           make TARGET=android clean all
-          cd lib/ios/staticjdk
-          zip -r vmone-android-linux-aarch64.zip lib
-      - name: Release
-        uses: softprops/action-gh-release@v2
+      - name: 'Upload static image artifact'
+        uses: actions/upload-artifact@v4
         with:
-          files: |
-            lib/ios/staticjdk/vmone-android-linux-aarch64.zip
+          name: vmone-android-linux-aarch64
+          path: lib/ios/staticjdk/lib/
+          retention-days: 1
   build-ios:
-    name: build
     runs-on: macos-14
     steps:
       - name: 'Checkout the JDK source'
@@ -47,10 +44,37 @@ jobs:
           unzip ios-macos-aarch64.zip -d /tmp/
           mv /tmp/ios-macos-aarch64/libjdk.a /tmp/
           make TARGET=ios clean all
-          cd lib/ios/staticjdk
-          zip -r vmone-ios-macos-aarch64.zip lib
+      - name: 'Upload static image artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vmone-ios-macos-aarch64
+          path: lib/ios/staticjdk/lib/
+          retention-days: 1
+  release:
+    needs: [ build-ios ]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        if: false
+        with:
+          name: vmone-android-linux-aarch64
+          path: ./dist/android-linux-aarch64/lib/
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vmone-ios-macos-aarch64
+          path: ./dist/ios-macos-aarch64/lib/
+      - name: Zip downloaded artifact
+        run: |
+          cd ./dist
+          zip -r vmone-ios-macos-aarch64.zip ios-macos-aarch64/lib/
+      - name: Check downloads
+        run: |
+          pwd
+          ls -R ./dist/
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            lib/ios/staticjdk/vmone-ios-macos-aarch64.zip
+            ./dist/*.zip
