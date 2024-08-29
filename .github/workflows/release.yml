@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-android:
+    name: build
+    runs-on: ubuntu-22.04
+    steps:
+      - name: 'Checkout the JDK source'
+        uses: actions/checkout@v4
+      - name: 'Download libjdk.a'
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: 'abhinayagarwal/mobile'
+          latest: true
+          fileName: 'android-linux-aarch64.zip'
+      - name: 'Build'
+        run: |
+          unzip android-linux-aarch64.zip -d /tmp/
+          mv /tmp/android-linux-aarch64/libjdk.a /tmp/
+          make TARGET=android clean all
+          cd lib/ios/staticjdk
+          zip -r vmone-android-linux-aarch64.zip lib
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            lib/ios/staticjdk/vmone-android-linux-aarch64.zip
+  build-ios:
+    name: build
+    runs-on: macos-14
+    steps:
+      - name: 'Checkout the JDK source'
+        uses: actions/checkout@v4
+      - name: 'Download libjdk.a'
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: 'abhinayagarwal/mobile'
+          latest: true
+          fileName: 'ios-macos-aarch64.zip'
+      - name: 'Build'
+        run: |
+          unzip ios-macos-aarch64.zip -d /tmp/
+          mv /tmp/ios-macos-aarch64/libjdk.a /tmp/
+          make TARGET=ios clean all
+          cd lib/ios/staticjdk
+          zip -r vmone-ios-macos-aarch64.zip lib
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            lib/ios/staticjdk/vmone-ios-macos-aarch64.zip
