@@ -54,21 +54,21 @@ jobs:
     needs: [ build-ios ]
     runs-on: ubuntu-22.04
     steps:
-      - name: Download all build artifacts
+      - name: Download android artifacts
         uses: actions/download-artifact@v4
         if: false
         with:
           name: vmone-android-linux-aarch64
           path: ./dist/android-linux-aarch64/lib/
-      - name: Download all build artifacts
+      - name: Download ios artifacts
         uses: actions/download-artifact@v4
         with:
           name: vmone-ios-macos-aarch64
           path: ./dist/ios-macos-aarch64/lib/
       - name: Zip downloaded artifact
         run: |
-          cd ./dist
-          zip -r vmone-ios-macos-aarch64.zip ios-macos-aarch64/lib/
+          cd dist/ios-macos-aarch64/
+          zip -r ../vmone-ios-macos-aarch64.zip lib/
       - name: Check downloads
         run: |
           pwd
