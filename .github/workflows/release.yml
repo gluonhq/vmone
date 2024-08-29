@@ -51,7 +51,7 @@ jobs:
           path: lib/ios/staticjdk/lib/
           retention-days: 1
   release:
-    needs: [ build-ios ]
+    needs: [ build-android, build-ios ]
     runs-on: ubuntu-22.04
     steps:
       - name: Download android artifacts

@@ -34,7 +34,7 @@ ifeq ($(TARGET), ios)
              $(INCLUDE_FLAGS)
 else ifeq ($(TARGET), android)
     OS := android
-    CC = /opt/android-ndk-r26c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang
+    CC = $ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin/clang
     CFLAGS = -target aarch64-linux-android \
              -DANDROID
 else 
