@@ -202,6 +202,7 @@ jobs:
         with:
           name: vmone-macos-x64
           path: ./dist/macos-x64/
+        if: false
 
       - name: Download macos aarch64 artifacts
         uses: actions/download-artifact@v4
@@ -214,12 +215,14 @@ jobs:
         with:
           name: vmone-windows-x64
           path: ./dist/windows-x64/
+        if: false
 
       - name: Download windows aarch64 artifacts
         uses: actions/download-artifact@v4
         with:
           name: vmone-windows-aarch64
           path: ./dist/windows-aarch64/
+        if: false
 
       - name: Zip downloaded artifacts
         run: |
