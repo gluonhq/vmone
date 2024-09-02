@@ -183,45 +183,45 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: vmone-android-linux-aarch64
-          path: ./dist/android-linux-aarch64/
+          path: ./dist/android-linux-aarch64/lib/
 
       - name: Download ios artifacts
         uses: actions/download-artifact@v4
         with:
           name: vmone-ios-macos-aarch64
-          path: ./dist/ios-macos-aarch64/
+          path: ./dist/ios-macos-aarch64/lib/
 
       - name: Download linux x64 artifacts
         uses: actions/download-artifact@v4
         with:
           name: vmone-linux-x64
-          path: ./dist/linux-x64/
+          path: ./dist/linux-x64/lib/
 
       - name: Download macos x64 artifacts
         uses: actions/download-artifact@v4
         with:
           name: vmone-macos-x64
-          path: ./dist/macos-x64/
+          path: ./dist/macos-x64/lib/
         if: false
 
       - name: Download macos aarch64 artifacts
         uses: actions/download-artifact@v4
         with:
           name: vmone-macos-aarch64
-          path: ./dist/macos-aarch64/
+          path: ./dist/macos-aarch64/lib/
 
       - name: Download windows x64 artifacts
         uses: actions/download-artifact@v4
         with:
           name: vmone-windows-x64
-          path: ./dist/windows-x64/
+          path: ./dist/windows-x64/lib/
         if: false
 
       - name: Download windows aarch64 artifacts
         uses: actions/download-artifact@v4
         with:
           name: vmone-windows-aarch64
-          path: ./dist/windows-aarch64/
+          path: ./dist/windows-aarch64/lib/
         if: false
 
       - name: Zip downloaded artifacts
