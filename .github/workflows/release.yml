@@ -232,14 +232,14 @@ jobs:
           zip -r ../vmone-ios-macos-aarch64.zip lib/
           cd $GITHUB_WORKSPACE/dist/linux-x64/
           zip -r ../vmone-linux-x64.zip lib/
-          cd $GITHUB_WORKSPACE/dist/macos-x64/
-          zip -r ../vmone-macos-x64.zip lib/
+          # cd $GITHUB_WORKSPACE/dist/macos-x64/
+          # zip -r ../vmone-macos-x64.zip lib/
           cd $GITHUB_WORKSPACE/dist/macos-aarch64/
           zip -r ../vmone-macos-aarch64.zip lib/
-          cd $GITHUB_WORKSPACE/dist/windows-x64/
-          zip -r ../vmone-windows-x64.zip lib/
-          cd $GITHUB_WORKSPACE/dist/windows-aarch64/
-          zip -r ../vmone-windows-aarch64.zip lib/
+          # cd $GITHUB_WORKSPACE/dist/windows-x64/
+          # zip -r ../vmone-windows-x64.zip lib/
+          # cd $GITHUB_WORKSPACE/dist/windows-aarch64/
+          # zip -r ../vmone-windows-aarch64.zip lib/
 
       - name: Check zip files
         run: |
