@@ -114,6 +114,7 @@ jobs:
           unzip macos-aarch64.zip -d /tmp/
           mv /tmp/macos-aarch64/libjdk.a /tmp/
           make clean all
+          find .
       - name: 'Upload static image artifact'
         uses: actions/upload-artifact@v4
         with:
