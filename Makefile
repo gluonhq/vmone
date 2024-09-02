@@ -16,8 +16,10 @@ else ifeq ($(shell uname), Darwin)
     OS := macosx
     CC = gcc
     CFLAGS = -DDARWIN $(INCLUDE_FLAGS) 
-else
-    OS := Unknown
+else ifeq ($(shell uname), MINGW32_NT)
+    OS := windows
+    CC = gcc
+    CFLAGS = -DWIN32 -I$(JAVA)/include -I$(JAVA)/include/win32
 endif
 
 ifeq ($(TARGET), ios)
@@ -37,7 +39,7 @@ else ifeq ($(TARGET), android)
     CC = $(ANDROID_NDK_HOME)/toolchains/llvm/prebuilt/linux-x86_64/bin/clang
     CFLAGS = -target aarch64-linux-android \
              -DANDROID
-else 
+else
 endif
 
 
@@ -68,22 +70,44 @@ OBJS = $(OBJS_C) $(OBJS_M)
 JDKLIB = /tmp/libjdk.a
 TEMP_DIR = /tmp/extractdir
 
-LIB = $(LIBDIR)/$(OS)/staticjdk/lib/libvmone.a
+ifeq ($(OS), windows)
+    JDKLIB := C:/path/to/libjdk.lib
+    LIB = $(LIBDIR)/windows/staticjdk/lib/libvmone.lib
+    AR = lib
+    ARFLAGS = /OUT:
+else
+    LIB = $(LIBDIR)/$(OS)/staticjdk/lib/libvmone.a
+    AR = ar
+    ARFLAGS = rcs
+endif
 
 all: $(LIB)
 
 $(LIB): $(OBJS)
 	@mkdir -p $(LIBDIR)/$(OS)/staticjdk/lib
+ifeq ($(OS), windows)
+	if [ -s $(JDKLIB) ]; then \
+		echo "Including $(JDKLIB) in lib"; \
+		TMPDIR=$(LIBDIR)/$(OS)/temp_objs; \
+		mkdir -p $$TMPDIR; \
+		(cd $$TMPDIR && $(AR) x $(JDKLIB)); \
+		$(AR) $(ARFLAGS) $@ $$TMPDIR/*.o $^; \
+	else \
+		echo "Existing library not found. Creating static library with object files only."; \
+		$(AR) $(ARFLAGS) $@ $^; \
+	fi
+else
 	if [ -s $(JDKLIB) ]; then \
 		echo "Including $(JDKLIB) in lib"; \
 		TMPDIR=$(LIBDIR)/$(OS)/temp_objs; \
 		mkdir -p $$TMPDIR; \
 		(cd $$TMPDIR && ar x $(JDKLIB)); \
-		ar rcs $@ $$TMPDIR/*.o $^; \
+		ar $(ARFLAGS) $@ $$TMPDIR/*.o $^; \
 	else \
 		echo "Existing library not found. Creating static library with object files only."; \
-		ar rcs $@ $^; \
+		ar $(ARFLAGS) $@ $^; \
 	fi
+endif
 
 debug:
 	@echo "OS: $(OS)"
@@ -106,4 +130,4 @@ $(OBJDIR)/$(OS)/%.o: $(SRCDIR)/darwin/%.m
 #$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJDIR) $(LIBDIR) 
+	rm -rf $(OBJDIR) $(LIBDIR)
