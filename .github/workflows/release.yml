@@ -95,7 +95,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: vmone-macos-x64
-          path: lib/macos/staticjdk/lib/
+          path: lib/macosx/staticjdk/lib/
           retention-days: 1
 
   build-macos-aarch64:
@@ -114,12 +114,11 @@ jobs:
           unzip macos-aarch64.zip -d /tmp/
           mv /tmp/macos-aarch64/libjdk.a /tmp/
           make clean all
-          find .
       - name: 'Upload static image artifact'
         uses: actions/upload-artifact@v4
         with:
           name: vmone-macos-aarch64
-          path: lib/macos-aarch64/staticjdk/lib/
+          path: lib/macosx/staticjdk/lib/
           retention-days: 1
 
   build-windows-x64:
