@@ -175,8 +175,9 @@ jobs:
     needs: [
         build-android, build-ios,
         build-linux-x64,
-        build-macos-x64,
-        build-macos-aarch64] # build-windows-x64, build-windows-aarch64
+        build-macos-x64, build-macos-aarch64,
+        # build-windows-x64, build-windows-aarch64
+    ]
     runs-on: ubuntu-22.04
     steps:
       - name: Download android artifacts
