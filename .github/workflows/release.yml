@@ -122,6 +122,7 @@ jobs:
           retention-days: 1
 
   build-windows-x64:
+    if: false
     runs-on: windows-latest
     steps:
       - name: 'Checkout the JDK source'
@@ -146,6 +147,7 @@ jobs:
           retention-days: 1
 
   build-windows-aarch64:
+    if: false
     runs-on: windows-latest
     steps:
       - name: 'Checkout the JDK source'
@@ -173,10 +175,8 @@ jobs:
     needs: [
         build-android, build-ios,
         build-linux-x64,
-        # build-macos-x64,
-        build-macos-aarch64,
-        # build-windows-x64, build-windows-aarch64
-    ]
+        build-macos-x64,
+        build-macos-aarch64] # build-windows-x64, build-windows-aarch64
     runs-on: ubuntu-22.04
     steps:
       - name: Download android artifacts
@@ -202,7 +202,6 @@ jobs:
         with:
           name: vmone-macos-x64
           path: ./dist/macos-x64/lib/
-        if: false
 
       - name: Download macos aarch64 artifacts
         uses: actions/download-artifact@v4
@@ -232,8 +231,8 @@ jobs:
           zip -r ../vmone-ios-macos-aarch64.zip lib/
           cd $GITHUB_WORKSPACE/dist/linux-x64/
           zip -r ../vmone-linux-x64.zip lib/
-          # cd $GITHUB_WORKSPACE/dist/macos-x64/
-          # zip -r ../vmone-macos-x64.zip lib/
+          cd $GITHUB_WORKSPACE/dist/macos-x64/
+          zip -r ../vmone-macos-x64.zip lib/
           cd $GITHUB_WORKSPACE/dist/macos-aarch64/
           zip -r ../vmone-macos-aarch64.zip lib/
           # cd $GITHUB_WORKSPACE/dist/windows-x64/
