@@ -122,7 +122,6 @@ jobs:
           retention-days: 1
 
   build-windows-x64:
-    if: false
     runs-on: windows-latest
     steps:
       - name: 'Checkout the JDK source'
@@ -147,7 +146,6 @@ jobs:
           retention-days: 1
 
   build-windows-aarch64:
-    if: false
     runs-on: windows-latest
     steps:
       - name: 'Checkout the JDK source'
@@ -176,7 +174,7 @@ jobs:
         build-android, build-ios,
         build-linux-x64,
         build-macos-x64, build-macos-aarch64,
-        # build-windows-x64, build-windows-aarch64
+        build-windows-x64, build-windows-aarch64
     ]
     runs-on: ubuntu-22.04
     steps:
@@ -215,14 +213,12 @@ jobs:
         with:
           name: vmone-windows-x64
           path: ./dist/windows-x64/lib/
-        if: false
 
       - name: Download windows aarch64 artifacts
         uses: actions/download-artifact@v4
         with:
           name: vmone-windows-aarch64
           path: ./dist/windows-aarch64/lib/
-        if: false
 
       - name: Zip downloaded artifacts
         run: |
@@ -236,10 +232,10 @@ jobs:
           zip -r ../vmone-macos-x64.zip lib/
           cd $GITHUB_WORKSPACE/dist/macos-aarch64/
           zip -r ../vmone-macos-aarch64.zip lib/
-          # cd $GITHUB_WORKSPACE/dist/windows-x64/
-          # zip -r ../vmone-windows-x64.zip lib/
-          # cd $GITHUB_WORKSPACE/dist/windows-aarch64/
-          # zip -r ../vmone-windows-aarch64.zip lib/
+          cd $GITHUB_WORKSPACE/dist/windows-x64/
+          zip -r ../vmone-windows-x64.zip lib/
+          cd $GITHUB_WORKSPACE/dist/windows-aarch64/
+          zip -r ../vmone-windows-aarch64.zip lib/
 
       - name: Check zip files
         run: |
