@@ -154,7 +154,7 @@ jobs:
           env
           msys2_shell.cmd -c "pacman -Syu --noconfirm"  # Update package database
           msys2_shell.cmd -c "pacman -S --noconfirm make gcc coreutils"  # Install make, gcc, coreutils
-          ls C:\tools\msys64\usr\include\sys
+          ls /c/tools/msys64/usr/include/sys
 
       - name: 'Download libjdk.lib'
         uses: robinraju/release-downloader@v1
