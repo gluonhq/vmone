@@ -59,7 +59,11 @@ jobs:
         shell: bash
         run: |
           export PATH="/c/tools/msys64/usr/bin:$PATH"
-          bash -c "make clean all"
+          bash
+          export JAVA_HOME="/c/hostedtoolcache/windows/Java_Temurin-Hotspot_jdk/x86"
+          export PATH="$JAVA_HOME/bin:$PATH"
+          env
+          make clean all
 
       - name: 'Upload static image artifact'
         uses: actions/upload-artifact@v4
