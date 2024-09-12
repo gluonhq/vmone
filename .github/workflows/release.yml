@@ -141,14 +141,13 @@ jobs:
       - name: Install MSYS2
         run: |
           choco install msys2
-          Refresh-Env  # Reload environment variables
 
       # Use pacman to install make, gcc, etc.
       - name: Set up MSYS2 environment
         shell: bash
         run: |
-          pacman -Syu --noconfirm  # Update package database
-          pacman -S --noconfirm make gcc coreutils  # Install make, gcc, and core utilities
+          C:\tools\msys64\usr\bin\bash.exe -lc "pacman -Syu --noconfirm"  # Update package database
+          C:\tools\msys64\usr\bin\bash.exe -lc "pacman -S --noconfirm make gcc coreutils"  # Install make, gcc, coreutils
 
       - name: 'Download libjdk.lib'
         uses: robinraju/release-downloader@v1
@@ -163,7 +162,7 @@ jobs:
           powershell -Command "Move-Item -Path C:\temp\windows-x64\libjdk.lib -Destination C:\temp\"
           ls C:\temp\
           ls
-          make clean all
+          C:\tools\msys64\usr\bin\bash.exe -lc "make clean all"
 
       - name: 'Upload static image artifact'
         uses: actions/upload-artifact@v4
