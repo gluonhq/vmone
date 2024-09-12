@@ -145,14 +145,14 @@ jobs:
         run: |
           ls C:\tools
           ls C:\tools\msys64
-          echo "C:\tools\msys64\usr\bin\" >> $GITHUB_PATH
+          echo "C:\tools\msys64\" >> $GITHUB_PATH
 
       # Use pacman to install make, gcc, etc.
       - name: Set up MSYS2 environment
         shell: bash
         run: |
-          bash -c "pacman -Syu --noconfirm"  # Update package database
-          bash -c "pacman -S --noconfirm make gcc coreutils"  # Install make, gcc, coreutils
+          msys2_shell.cmd -c "pacman -Syu --noconfirm"  # Update package database
+          msys2_shell.cmd -c "pacman -S --noconfirm make gcc coreutils"  # Install make, gcc, coreutils
           ls C:\tools\msys64\usr\include\sys
 
       - name: 'Download libjdk.lib'
