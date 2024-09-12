@@ -18,7 +18,7 @@ else ifeq ($(shell uname), Darwin)
     OS := macosx
     CC = gcc
     CFLAGS = -DDARWIN $(INCLUDE_FLAGS) 
-else ifeq ($(shell uname), MINGW32_NT)
+else ifeq ($(shell uname), MSYS_NT-10.0-20348)
     OS := windows
     CC = gcc
     CFLAGS = -DWIN32 -I$(JAVA)/include -I$(JAVA)/include/win32
