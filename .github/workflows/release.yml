@@ -136,7 +136,9 @@ jobs:
         run: |
           powershell -Command "Expand-Archive -Path windows-x64.zip -DestinationPath C:\temp\"
           powershell -Command "Move-Item -Path C:\temp\windows-x64\libjdk.lib -Destination C:\temp\"
-          cd C:\temp
+          # cd C:\temp
+          ls C:\temp\
+          ls
           make clean all
       - name: 'Upload static image artifact'
         uses: actions/upload-artifact@v4
