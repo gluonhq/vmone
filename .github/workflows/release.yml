@@ -56,10 +56,8 @@ jobs:
           ls
 
       - name: 'Build Make'
-        shell: bash
+        shell: /c/tools/msys64/usr/bin/bash
         run: |
-          export PATH="/c/tools/msys64/usr/bin:$PATH"
-          bash
           export JAVA_HOME="/c/hostedtoolcache/windows/Java_Temurin-Hotspot_jdk/x86"
           export PATH="$JAVA_HOME/bin:$PATH"
           env
