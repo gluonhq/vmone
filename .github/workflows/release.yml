@@ -48,12 +48,16 @@ jobs:
           latest: true
           fileName: 'windows-x64.zip'
 
-      - name: 'Build'
+      - name: 'Build Copy'
         run: |
           powershell -Command "Expand-Archive -Path windows-x64.zip -DestinationPath C:\temp\"
           powershell -Command "Move-Item -Path C:\temp\windows-x64\libjdk.lib -Destination C:\temp\"
           ls C:\temp\
           ls
+          
+      - name: 'Build Make'
+        shell: bash
+        run: |
           export PATH="/c/tools/msys64/usr/bin:$PATH"
           bash --login -i -c "make clean all"
 
