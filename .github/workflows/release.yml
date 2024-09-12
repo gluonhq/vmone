@@ -148,6 +148,7 @@ jobs:
           # "/c/tools/msys64" >> $PATH
 
       - name: Set up MSYS2 environment
+        shell: bash
         run: |
           export PATH="/c/tools/msys64:$PATH"
           env
