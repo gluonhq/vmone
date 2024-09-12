@@ -54,12 +54,12 @@ jobs:
           powershell -Command "Move-Item -Path C:\temp\windows-x64\libjdk.lib -Destination C:\temp\"
           ls C:\temp\
           ls
-          
+
       - name: 'Build Make'
         shell: bash
         run: |
           export PATH="/c/tools/msys64/usr/bin:$PATH"
-          bash --login -i -c "make clean all"
+          bash -c "make clean all"
 
       - name: 'Upload static image artifact'
         uses: actions/upload-artifact@v4
