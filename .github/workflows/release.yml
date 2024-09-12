@@ -128,6 +128,8 @@ jobs:
     steps:
       - name: 'Checkout the JDK source'
         uses: actions/checkout@v4
+      - name: 'Set up JDK 11 Temurin'
+        uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '11'
@@ -143,7 +145,6 @@ jobs:
         run: |
           powershell -Command "Expand-Archive -Path windows-x64.zip -DestinationPath C:\temp\"
           powershell -Command "Move-Item -Path C:\temp\windows-x64\libjdk.lib -Destination C:\temp\"
-          # cd C:\temp
           ls C:\temp\
           ls
           make clean all
