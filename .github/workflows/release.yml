@@ -139,15 +139,21 @@ jobs:
         run: java -version
 
       - name: Install MSYS2
+        run: choco install msys2 --no-progress
+
+      - name: Add MSYS2 to PATH
         run: |
-          choco install msys2
+          ls C:\tools
+          ls C:\tools\msys64
+          ls C:\tools\msys64\usr\include\sys
+          echo "C:\tools\msys64\usr\bin\" >> $GITHUB_PATH
 
       # Use pacman to install make, gcc, etc.
       - name: Set up MSYS2 environment
         shell: bash
         run: |
-          C:\tools\msys64\usr\bin\bash.exe -lc "pacman -Syu --noconfirm"  # Update package database
-          C:\tools\msys64\usr\bin\bash.exe -lc "pacman -S --noconfirm make gcc coreutils"  # Install make, gcc, coreutils
+          bash -c "pacman -Syu --noconfirm"  # Update package database
+          bash -c "pacman -S --noconfirm make gcc coreutils"  # Install make, gcc, coreutils
 
       - name: 'Download libjdk.lib'
         uses: robinraju/release-downloader@v1
@@ -162,7 +168,7 @@ jobs:
           powershell -Command "Move-Item -Path C:\temp\windows-x64\libjdk.lib -Destination C:\temp\"
           ls C:\temp\
           ls
-          C:\tools\msys64\usr\bin\bash.exe -lc "make clean all"
+          bash -c "make clean all"
 
       - name: 'Upload static image artifact'
         uses: actions/upload-artifact@v4
