@@ -145,7 +145,7 @@ jobs:
         run: |
           ls C:\tools
           ls C:\tools\msys64
-          "/c/tools/msys64" >> $GITHUB_PATH
+          "/c/tools/msys64" >> $PATH
 
       - name: Set up MSYS2 environment
         run: |
