@@ -128,23 +128,35 @@ jobs:
     steps:
       - name: 'Checkout the JDK source'
         uses: actions/checkout@v4
+
       - name: 'Set up JDK 11 Temurin'
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '11'
+
       - name: Verify Java version
         run: java -version
-      - name: Set up MSYS2 environment
+
+      - name: Install MSYS2
         run: |
-          pacman -Syu  # Update package database
-          pacman -S make gcc coreutils  # Install make, gcc, and core utilities (includes `rm`)
+          choco install msys2
+          Refresh-Env  # Reload environment variables
+
+      # Use pacman to install make, gcc, etc.
+      - name: Set up MSYS2 environment
+        shell: bash
+        run: |
+          pacman -Syu --noconfirm  # Update package database
+          pacman -S --noconfirm make gcc coreutils  # Install make, gcc, and core utilities
+
       - name: 'Download libjdk.lib'
         uses: robinraju/release-downloader@v1
         with:
           repository: 'gluonhq/mobile'
           latest: true
           fileName: 'windows-x64.zip'
+
       - name: 'Build'
         run: |
           powershell -Command "Expand-Archive -Path windows-x64.zip -DestinationPath C:\temp\"
@@ -152,6 +164,7 @@ jobs:
           ls C:\temp\
           ls
           make clean all
+
       - name: 'Upload static image artifact'
         uses: actions/upload-artifact@v4
         with:
