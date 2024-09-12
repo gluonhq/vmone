@@ -135,6 +135,10 @@ jobs:
           java-version: '11'
       - name: Verify Java version
         run: java -version
+      - name: Set up MSYS2 environment
+        run: |
+          pacman -Syu  # Update package database
+          pacman -S make gcc coreutils  # Install make, gcc, and core utilities (includes `rm`)
       - name: 'Download libjdk.lib'
         uses: robinraju/release-downloader@v1
         with:
