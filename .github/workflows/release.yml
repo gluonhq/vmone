@@ -11,17 +11,12 @@ jobs:
     steps:
       - name: 'Checkout the JDK source'
         uses: actions/checkout@v4
-
       - name: 'Set up JDK 11 Temurin'
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '11'
           architecture: 'x64'
-
-      - name: Verify Java version
-        run: java -version
-
       - name: Set up MSYS2 environment
         uses: msys2/setup-msys2@v2
         with:
@@ -30,30 +25,20 @@ jobs:
             make
             gcc
             coreutils
-
       - name: 'Download libjdk.lib'
         uses: robinraju/release-downloader@v1
         with:
           repository: 'gluonhq/mobile'
           latest: true
           fileName: 'windows-x64.zip'
-
       - name: 'Build Copy'
+        shell: msys2 {0}
         run: |
           powershell -Command "Expand-Archive -Path windows-x64.zip -DestinationPath C:\temp\"
           powershell -Command "Move-Item -Path C:\temp\windows-x64\libjdk.lib -Destination C:\temp\"
-          ls C:\temp\
-          ls
-
-      - name: 'Build Make'
-        shell: msys2 {0}
-        run: |
           export JAVA_HOME="/c/hostedtoolcache/windows/Java_Temurin-Hotspot_jdk/11.0.24-8/x64"
           export PATH="$JAVA_HOME/bin:$PATH"
-          java --version
-          env
           make clean all
-
       - name: 'Upload static image artifact'
         uses: actions/upload-artifact@v4
         with:
