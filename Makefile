@@ -95,7 +95,7 @@ ifeq ($(OS), windows)
 		$(AR) t $(JDKLIB) | xargs -n 1 dirname | sort -u > dirlist.txt; \
 		xargs mkdir -p < dirlist.txt; \
 		(cd $$TMPDIR && $(AR) x $(JDKLIB)); \
-		$(AR) $(ARFLAGS) $@ $(shell find D:/a/mobile/mobile/build/windows-x64/support/native -name '*.obj') $^; \
+		$(AR) $(ARFLAGS) $@ $(shell find D:/a/mobile/mobile/build/windows-x64/support/native -name '*.*') $^; \
 	else \
 		echo "Existing library not found. Creating static library with object files only."; \
 		$(AR) $(ARFLAGS) $@ $^; \
