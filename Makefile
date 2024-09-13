@@ -75,8 +75,8 @@ TEMP_DIR = /tmp/extractdir
 ifeq ($(OS), windows)
     JDKLIB := C:/temp/libjdk.lib
     LIB = $(LIBDIR)/windows/staticjdk/lib/libvmone.lib
-    AR = lib
-    ARFLAGS = /OUT:
+    AR = ar
+    ARFLAGS = rcs
 else
     LIB = $(LIBDIR)/$(OS)/staticjdk/lib/libvmone.a
     AR = ar
@@ -92,8 +92,10 @@ ifeq ($(OS), windows)
 		echo "Including $(JDKLIB) in lib"; \
 		TMPDIR=$(LIBDIR)/$(OS)/temp_objs; \
 		mkdir -p $$TMPDIR; \
+		$(AR) t $(JDKLIB) | xargs -n 1 dirname | sort -u > dirlist.txt; \
+		xargs mkdir -p < dirlist.txt; \
 		(cd $$TMPDIR && $(AR) x $(JDKLIB)); \
-		$(AR) $(ARFLAGS) $@ $$TMPDIR/*.o $^; \
+		$(AR) $(ARFLAGS) $@ $(shell find D:/a/mobile/mobile/build/windows-x64/support/native -name '*.obj') $^; \
 	else \
 		echo "Existing library not found. Creating static library with object files only."; \
 		$(AR) $(ARFLAGS) $@ $^; \
