@@ -34,8 +34,9 @@ jobs:
       - name: 'Build Copy'
         shell: msys2 {0}
         run: |
-          powershell -Command "Expand-Archive -Path windows-x64.zip -DestinationPath C:\temp\"
-          powershell -Command "Move-Item -Path C:\temp\windows-x64\libjdk.lib -Destination C:\temp\"
+          mkdir -p /c/temp
+          unzip windows-x64.zip -d /c/temp
+          mv /c/temp/windows-x64/libjdk.lib /c/temp/
           export JAVA_HOME="/c/hostedtoolcache/windows/Java_Temurin-Hotspot_jdk/11.0.24-8/x64"
           export PATH="$JAVA_HOME/bin:$PATH"
           make clean all
