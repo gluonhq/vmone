@@ -17,6 +17,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
+          architecture: 'x64'
 
       - name: Verify Java version
         run: java -version
@@ -47,7 +48,7 @@ jobs:
       - name: 'Build Make'
         shell: msys2 {0}
         run: |
-          export JAVA_HOME="/c/hostedtoolcache/windows/Java_Temurin-Hotspot_jdk/x86"
+          export JAVA_HOME="/c/hostedtoolcache/windows/Java_Temurin-Hotspot_jdk/x64"
           export PATH="$JAVA_HOME/bin:$PATH"
           env
           make clean all
