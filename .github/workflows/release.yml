@@ -6,6 +6,121 @@ on:
       - '*'
 
 jobs:
+  build-android:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: 'Checkout the JDK source'
+        uses: actions/checkout@v4
+      - name: 'Download libjdk.a'
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: 'gluonhq/mobile'
+          latest: true
+          fileName: 'android-linux-aarch64.zip'
+      - name: 'Build'
+        run: |
+          unzip android-linux-aarch64.zip -d /tmp/
+          mv /tmp/android-linux-aarch64/libjdk.a /tmp/
+          make TARGET=android clean all
+      - name: 'Upload static image artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vmone-android-linux-aarch64
+          path: lib/android/staticjdk/lib/
+          retention-days: 1
+
+  build-ios:
+    runs-on: macos-14
+    steps:
+      - name: 'Checkout the JDK source'
+        uses: actions/checkout@v4
+      - name: 'Download libjdk.a'
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: 'gluonhq/mobile'
+          latest: true
+          fileName: 'ios-macos-aarch64.zip'
+      - name: 'Build'
+        run: |
+          unzip ios-macos-aarch64.zip -d /tmp/
+          mv /tmp/ios-macos-aarch64/libjdk.a /tmp/
+          make TARGET=ios clean all
+      - name: 'Upload static image artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vmone-ios-macos-aarch64
+          path: lib/ios/staticjdk/lib/
+          retention-days: 1
+
+  build-linux-x64:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: 'Checkout the JDK source'
+        uses: actions/checkout@v4
+      - name: 'Download libjdk.a'
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: 'gluonhq/mobile'
+          latest: true
+          fileName: 'linux-x64.zip'
+      - name: 'Build'
+        run: |
+          unzip linux-x64.zip -d /tmp/
+          mv /tmp/linux-x64/libjdk.a /tmp/
+          make clean all
+      - name: 'Upload static image artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vmone-linux-x64
+          path: lib/linux/staticjdk/lib/
+          retention-days: 1
+
+  build-macos-x64:
+    runs-on: macos-13
+    steps:
+      - name: 'Checkout the JDK source'
+        uses: actions/checkout@v4
+      - name: 'Download libjdk.a'
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: 'gluonhq/mobile'
+          latest: true
+          fileName: 'macos-x64.zip'
+      - name: 'Build'
+        run: |
+          unzip macos-x64.zip -d /tmp/
+          mv /tmp/macos-x64/libjdk.a /tmp/
+          make clean all
+      - name: 'Upload static image artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vmone-macos-x64
+          path: lib/macosx/staticjdk/lib/
+          retention-days: 1
+
+  build-macos-aarch64:
+    runs-on: macos-14
+    steps:
+      - name: 'Checkout the JDK source'
+        uses: actions/checkout@v4
+      - name: 'Download libjdk.a'
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: 'gluonhq/mobile'
+          latest: true
+          fileName: 'macos-aarch64.zip'
+      - name: 'Build'
+        run: |
+          unzip macos-aarch64.zip -d /tmp/
+          mv /tmp/macos-aarch64/libjdk.a /tmp/
+          make clean all
+      - name: 'Upload static image artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vmone-macos-aarch64
+          path: lib/macosx/staticjdk/lib/
+          retention-days: 1
+
   build-windows-x64:
     runs-on: windows-latest
     steps:
@@ -32,7 +147,7 @@ jobs:
           repository: 'gluonhq/mobile'
           latest: true
           fileName: 'windows-x64.zip'
-      - name: 'Build Copy'
+      - name: 'Build'
         shell: msys2 {0}
         run: |
           mkdir -p /c/temp
@@ -48,23 +163,116 @@ jobs:
           path: lib\windows\staticjdk\lib\
           retention-days: 1
 
+  build-windows-aarch64:
+    runs-on: windows-latest
+    steps:
+      - name: 'Checkout the JDK source'
+        uses: actions/checkout@v4
+      - name: 'Set up JDK 11 Temurin'
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          architecture: 'x64'
+      - name: Set up MSYS2 environment
+        uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            make
+            gcc
+            coreutils
+            unzip
+      - name: 'Download libjdk.lib'
+        uses: robinraju/release-downloader@v1
+        with:
+          repository: 'gluonhq/mobile'
+          latest: true
+          fileName: 'windows-aarch64.zip'
+      - name: 'Build'
+        shell: msys2 {0}
+        run: |
+          mkdir -p /c/temp
+          unzip windows-aarch64.zip -d /c/temp
+          mv /c/temp/windows-aarch64/libjdk.lib /c/temp/
+          export JAVA_HOME="/c/hostedtoolcache/windows/Java_Temurin-Hotspot_jdk/11.0.24-8/x64"
+          export PATH="$JAVA_HOME/bin:$PATH"
+          make clean all
+      - name: 'Upload static image artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vmone-windows-aarch64
+          path: lib\windows\staticjdk\lib\
+          retention-days: 1
+
   release:
     needs: [
-        build-windows-x64
+        build-android, build-ios,
+        build-linux-x64,
+        build-macos-x64, build-macos-aarch64,
+        build-windows-x64, build-windows-aarch64
     ]
     runs-on: ubuntu-22.04
     steps:
+      - name: Download android artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vmone-android-linux-aarch64
+          path: ./dist/android-linux-aarch64/lib/
+
+      - name: Download ios artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vmone-ios-macos-aarch64
+          path: ./dist/ios-macos-aarch64/lib/
+
+      - name: Download linux x64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vmone-linux-x64
+          path: ./dist/linux-x64/lib/
+
+      - name: Download macos x64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vmone-macos-x64
+          path: ./dist/macos-x64/lib/
+
+      - name: Download macos aarch64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vmone-macos-aarch64
+          path: ./dist/macos-aarch64/lib/
+
       - name: Download windows x64 artifacts
         uses: actions/download-artifact@v4
         with:
           name: vmone-windows-x64
           path: ./dist/windows-x64/lib/
 
+      - name: Download windows aarch64 artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vmone-windows-aarch64
+          path: ./dist/windows-aarch64/lib/
+
       - name: Zip downloaded artifacts
         run: |
+          cd $GITHUB_WORKSPACE/dist/android-linux-aarch64/
+          zip -r ../vmone-android-linux-aarch64.zip lib/
+          cd $GITHUB_WORKSPACE/dist/ios-macos-aarch64/
+          zip -r ../vmone-ios-macos-aarch64.zip lib/
+          cd $GITHUB_WORKSPACE/dist/linux-x64/
+          zip -r ../vmone-linux-x64.zip lib/
+          cd $GITHUB_WORKSPACE/dist/macos-x64/
+          zip -r ../vmone-macos-x64.zip lib/
+          cd $GITHUB_WORKSPACE/dist/macos-aarch64/
+          zip -r ../vmone-macos-aarch64.zip lib/
           cd $GITHUB_WORKSPACE/dist/windows-x64/
           zip -r ../vmone-windows-x64.zip lib/
-      
+          cd $GITHUB_WORKSPACE/dist/windows-aarch64/
+          zip -r ../vmone-windows-aarch64.zip lib/
+
       - name: Check zip files
         run: |
           ls -R ./dist/
