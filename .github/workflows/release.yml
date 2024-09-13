@@ -25,6 +25,7 @@ jobs:
             make
             gcc
             coreutils
+            unzip
       - name: 'Download libjdk.lib'
         uses: robinraju/release-downloader@v1
         with:
