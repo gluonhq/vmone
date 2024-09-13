@@ -49,7 +49,7 @@ jobs:
         shell: msys2 {0}
         run: |
           export JAVA_HOME="C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\11.0.24-8\x64"
-          export PATH="$JAVA_HOME/bin:$PATH"
+          export PATH="$JAVA_HOME\bin:$PATH"
           env
           make clean all
 
