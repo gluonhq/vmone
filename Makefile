@@ -21,7 +21,7 @@ else ifeq ($(shell uname), Darwin)
 else ifeq ($(shell uname), MINGW64_NT-10.0-20348)
     OS := windows
     CC = gcc
-    CFLAGS = -DWIN32 -I$(JAVA)/include -I$(JAVA)/include/win32
+    CFLAGS = -DWIN32 -I$(JAVA)/include -I$(JAVA)/include/win32 -D__int64="long long"
 endif
 
 ifeq ($(TARGET), ios)
