@@ -74,7 +74,7 @@ TEMP_DIR = /tmp/extractdir
 
 ifeq ($(OS), windows)
     JDKLIB := C:/temp/libjdk.lib
-    LIB = $(LIBDIR)/windows/staticjdk/lib/libvmone.lib
+    LIB = $(LIBDIR)/windows/staticjdk/lib/vmone.lib
     AR = ar
     ARFLAGS = rcs
 else
