@@ -1,5 +1,3 @@
-$(info Detected OS: $(shell uname))
-
 JAVA := /opt/java
 
 ifeq ($(strip $(JAVA_HOME)),)
@@ -18,7 +16,7 @@ else ifeq ($(shell uname), Darwin)
     OS := macosx
     CC = gcc
     CFLAGS = -DDARWIN $(INCLUDE_FLAGS) 
-else ifeq ($(shell uname), MINGW64_NT-10.0-20348)
+else ifeq ($(findstring MINGW64_NT, $(shell uname)), MINGW64_NT)
     OS := windows
     CC = gcc
     CFLAGS = -DWIN32 -I$(JAVA)/include -I$(JAVA)/include/win32 -D__int64="long long"
@@ -86,7 +84,7 @@ endif
 all: $(LIB)
 
 $(LIB): $(OBJS)
-	mkdir -p $(LIBDIR)/$(OS)/staticjdk/lib
+	@mkdir -p $(LIBDIR)/$(OS)/staticjdk/lib
 ifeq ($(OS), windows)
 	if [ -s $(JDKLIB) ]; then \
 		echo "Including $(JDKLIB) in lib"; \
@@ -95,7 +93,7 @@ ifeq ($(OS), windows)
 		$(AR) t $(JDKLIB) | xargs -n 1 dirname | sort -u > dirlist.txt; \
 		xargs mkdir -p < dirlist.txt; \
 		(cd $$TMPDIR && $(AR) x $(JDKLIB)); \
-		$(AR) $(ARFLAGS) $@ $(shell find D:/a/mobile/mobile/build/windows-x64/support/native -name '*.*') $^; \
+		$(AR) $(ARFLAGS) $@ $(shell find D:/a/mobile/mobile/build/windows-x64/support/native -type f -name '*.*') $^; \
 	else \
 		echo "Existing library not found. Creating static library with object files only."; \
 		$(AR) $(ARFLAGS) $@ $^; \
@@ -119,14 +117,6 @@ debug:
 	@echo "OBJS: $(OBJS)"
 	@echo "OBJDIR: $(OBJDIR)"
 	@echo "JDKLIB: $(JDKLIB)"
-	@if [ -s $(JDKLIB) ]; then \
-		echo "JDKLIB exists and is not empty."; \
-		$(AR) t $(JDKLIB); \
-	else \
-		echo "JDKLIB does not exist or is empty."; \
-	fi
-	@echo "Contents of $(LIB):"
-	$(AR) t $(LIB)
 
 
 $(OBJDIR)/$(OS)/%.o: $(SRCDIR)/%.c
