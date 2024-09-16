@@ -74,7 +74,7 @@ TEMP_DIR = /tmp/extractdir
 
 ifeq ($(OS), windows)
     JDKLIB := C:/temp/libjdk.lib
-    LIB = $(LIBDIR)/windows/staticjdk/lib/vmone.lib
+    LIB = $(LIBDIR)/$(OS)/staticjdk/lib/vmone.lib
     AR = ar
     ARFLAGS = rcs
 else
@@ -86,7 +86,7 @@ endif
 all: $(LIB)
 
 $(LIB): $(OBJS)
-	@mkdir -p $(LIBDIR)/$(OS)/staticjdk/lib
+	mkdir -p $(LIBDIR)/$(OS)/staticjdk/lib
 ifeq ($(OS), windows)
 	if [ -s $(JDKLIB) ]; then \
 		echo "Including $(JDKLIB) in lib"; \
@@ -118,6 +118,15 @@ debug:
 	@echo "SRCS: $(SRCS)"
 	@echo "OBJS: $(OBJS)"
 	@echo "OBJDIR: $(OBJDIR)"
+	@echo "JDKLIB: $(JDKLIB)"
+	@if [ -s $(JDKLIB) ]; then \
+		echo "JDKLIB exists and is not empty."; \
+		$(AR) t $(JDKLIB); \
+	else \
+		echo "JDKLIB does not exist or is empty."; \
+	fi
+	@echo "Contents of $(LIB):"
+	$(AR) t $(LIB)
 
 
 $(OBJDIR)/$(OS)/%.o: $(SRCDIR)/%.c
