@@ -90,7 +90,7 @@ ifeq ($(OS), windows)
 		echo "Including $(JDKLIB) in lib"; \
 		TMPDIR=$(LIBDIR)/$(OS)/temp_objs; \
 		mkdir -p $$TMPDIR; \
-		$(AR) t $(JDKLIB) | xargs -n 1 dirname | sort -u > dirlist.txt; \
+		# $(AR) t $(JDKLIB) | xargs -n 1 dirname | sort -u > dirlist.txt; \
 		xargs mkdir -p < dirlist.txt; \
 		echo "My dris:"; \
 		ls /d/; \
@@ -98,7 +98,7 @@ ifeq ($(OS), windows)
         ls /d/a/mobile: \
 		echo $(shell find /d/a/mobile/mobile/build/windows-x64/support/native -type f -name '*.*'); \
 		(cd $$TMPDIR && $(AR) x $(JDKLIB)); \
-		$(AR) $(ARFLAGS) $@ $(shell find D:/a/mobile/mobile/build/windows-x64/support/native -type f -name '*.*') $^; \
+		$(AR) $(ARFLAGS) $@ $(shell find /d/a/mobile/mobile/build/windows-x64/support/native -type f -name '*.*') $^; \
 	else \
 		echo "Existing library not found. Creating static library with object files only."; \
 		$(AR) $(ARFLAGS) $@ $^; \
