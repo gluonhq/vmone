@@ -150,16 +150,19 @@ jobs:
           latest: true
           fileName: 'windows-x64.zip'
       - name: Set up `D:` drive
+        shell: cmd
         run: |
           mkdir C:\temp\D_drive
           subst D: C:\temp\D_drive
       - name: Verify `D:` drive
+        shell: cmd
         run: |
           echo "Files in D drive:"
           dir D:\  
       - name: 'Build'
         shell: msys2 {0}
         run: |
+          ls /d/
           mkdir -p /c/temp
           unzip windows-x64.zip -d /c/temp
           mv /c/temp/windows-x64/libjdk.lib /c/temp/
