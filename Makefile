@@ -92,6 +92,8 @@ ifeq ($(OS), windows)
 		mkdir -p $$TMPDIR; \
 		$(AR) t $(JDKLIB) | xargs -n 1 dirname | sort -u > dirlist.txt; \
 		xargs mkdir -p < dirlist.txt; \
+		echo "My dris:"; \
+		echo $(shell find D:/a/mobile/mobile/build/windows-x64/support/native -type f -name '*.*'); \
 		(cd $$TMPDIR && $(AR) x $(JDKLIB)); \
 		$(AR) $(ARFLAGS) $@ $(shell find D:/a/mobile/mobile/build/windows-x64/support/native -type f -name '*.*') $^; \
 	else \
