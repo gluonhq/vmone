@@ -92,6 +92,8 @@ ifeq ($(OS), windows)
 		mkdir -p $$TMPDIR; \
 		# $(AR) t $(JDKLIB) | xargs -n 1 dirname | sort -u > dirlist.txt; \
 		xargs mkdir -p < dirlist.txt; \
+        mkdir -p /d/a/mobile/mobile/build/windows-x64/support/native/java.base/libjava/static;
+        ls mkdir -p /d/a/mobile/mobile/build/windows-x64/support/native/java.base/libjava;
 		echo "My dris:"; \
 		ls /d/; \
         ls /d/a/: \
