@@ -95,8 +95,8 @@ ifeq ($(OS), windows)
 		mkdir -p /d/a/mobile/mobile/build/windows-x64/support/native/java.base/libjava/static;
 		ls mkdir -p /d/a/mobile/mobile/build/windows-x64/support/native/java.base/libjava;
 		echo "My dris:"; \
-        ls /d/a/: \
-        ls /d/a/mobile: \
+        ls /d/a/; \
+        ls /d/a/mobile; \
 		echo $(shell find /d/a/mobile/mobile/build/windows-x64/support/native -type f -name '*.*'); \
 		(cd $$TMPDIR && $(AR) x $(JDKLIB)); \
 		$(AR) $(ARFLAGS) $@ $(shell find /d/a/mobile/mobile/build/windows-x64/support/native -type f -name '*.*') $^; \
