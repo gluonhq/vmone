@@ -92,7 +92,8 @@ ifeq ($(OS), windows)
 		mkdir -p $$TMPDIR; \
 		$(AR) t $(JDKLIB) | xargs -n 1 dirname | sort -u > dirlist.txt; \
 		xargs mkdir -p < dirlist.txt; \
-		(cd $$TMPDIR && mkdir -p temp && $(AR) x --output temp $(JDKLIB)); ls temp; \
+		cp dirlist.txt $(LIBDIR)/$(OS)/staticjdk/lib; \
+		(cd $$TMPDIR && $(AR) x $(JDKLIB)); \
 		$(AR) $(ARFLAGS) $@ $(shell find D:/a/mobile/mobile/build/windows-x64/support/native -type f -name '*.*') $^; \
 	else \
 		echo "Existing library not found. Creating static library with object files only."; \

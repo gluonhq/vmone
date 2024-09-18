@@ -152,8 +152,6 @@ jobs:
       - name: 'Build'
         shell: msys2 {0}
         run: |
-          ar --version
-          ls /d/
           mkdir -p /c/temp
           unzip windows-x64.zip -d /c/temp
           mv /c/temp/windows-x64/libjdk.lib /c/temp/
