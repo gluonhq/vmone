@@ -28,32 +28,41 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdint.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <string.h>
+#include <limits.h>
+#ifdef _WIN32
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <windows.h>
+#else
+#include <unistd.h>
 #include <sys/socket.h>
 #include <poll.h>
 #include <netdb.h>
-#include <errno.h>
 #include <dlfcn.h>
-#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
-#include <limits.h>
 #include <sched.h>
+#include <arpa/inet.h>
+#endif
 
 #include <jni.h>
-
 #define OS_OK 0
 #define OS_ERR -1
 
 /* Set by native-image during image build time. Indicates whether the built image is a static binary. */
+#ifdef _WIN32
+int __svm_vm_is_static_binary = 0;  // or 1, depending on static configuration for SVM on Windows
+#else
 extern int __svm_vm_is_static_binary;
+#endif
 /*
     The way JDK checks IPv6 support on Linux involves checking if inet_pton exists using JVM_FindLibraryEntry. That
     function in turn calls dlsym, which is a bad idea in a static binary.
     This header provides that symbol, allowing us to return its address through JVM_FindLibraryEntry.
 */
-#include <arpa/inet.h>
 
 #ifdef JNI_VERSION_9
     #define JVM_INTERFACE_VERSION 6
@@ -154,7 +163,13 @@ JNIEXPORT int JNICALL JVM_ActiveProcessorCount() {
 #if defined(__linux__) && !defined(ANDROID)
     return linux_active_processor_count();
 #else
+#ifdef _WIN32
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    return sysinfo.dwNumberOfProcessors;
+#else
     return sysconf(_SC_NPROCESSORS_ONLN);
+#endif
 #endif
 }
 
@@ -179,7 +194,11 @@ JNIEXPORT void* JNICALL JVM_FindLibraryEntry(void* handle, const char* name) {
         fflush(stderr);
         exit(1);
     } else {
+#ifdef _WIN32
+        return GetProcAddress((HMODULE)handle, name);
+#else
         return dlsym(handle, name);
+#endif
     }
 }
 
@@ -219,7 +238,11 @@ JNIEXPORT int JNICALL JVM_SocketAvailable(int fd, int *pbytes) {
     if (fd < 0)
         return OS_OK;
 
+#ifdef _WIN32
+    RESTARTABLE(ioctlsocket(fd, FIONREAD, pbytes), ret);
+#else
     RESTARTABLE(ioctl(fd, FIONREAD, pbytes), ret);
+#endif
 
     return (ret == OS_ERR) ? 0 : 1;
 }
@@ -238,18 +261,40 @@ JNIEXPORT int JNICALL JVM_InitializeSocketLibrary() {
    return 0;
 }
 
-JNIEXPORT jlong JNICALL Java_java_lang_System_currentTimeMillis(void *env, void * ignored) {
+JNIEXPORT jlong JNICALL Java_java_lang_System_currentTimeMillis(void* env, void* ignored) {
+#ifdef _WIN32
+    FILETIME ft;
+    ULARGE_INTEGER uli;
+
+    GetSystemTimeAsFileTime(&ft);
+    uli.LowPart = ft.dwLowDateTime;
+    uli.HighPart = ft.dwHighDateTime;
+
+    return (jlong)((uli.QuadPart - 116444736000000000ULL) / 10000ULL);
+#else
     struct timeval time;
     int status = gettimeofday(&time, NULL);
-    return (jlong)(time.tv_sec * 1000)  +  (jlong)(time.tv_usec / 1000);
+    return (jlong)(time.tv_sec * 1000) + (jlong)(time.tv_usec / 1000);
+#endif
 }
 
-JNIEXPORT jlong JNICALL Java_java_lang_System_nanoTime(void *env, void * ignored) {
+JNIEXPORT jlong JNICALL Java_java_lang_System_nanoTime(void* env, void* ignored) {
     // get implementation from hotspot/os/bsd/os_bsd.cpp
     // for now, just return 1000 * microseconds
+#ifdef _WIN32
+    FILETIME ft;
+    ULARGE_INTEGER uli;
+
+    GetSystemTimeAsFileTime(&ft);
+    uli.LowPart = ft.dwLowDateTime;
+    uli.HighPart = ft.dwHighDateTime;
+
+    return (jlong)(uli.QuadPart - 116444736000000000ULL) * 100;
+#else
     struct timeval time;
     int status = gettimeofday(&time, NULL);
-    return (jlong)(time.tv_sec * 1000000000)  +  (jlong)(time.tv_usec * 1000);
+    return (jlong)(time.tv_sec * 1000000000) + (jlong)(time.tv_usec * 1000);
+#endif
 }
 
 JNIEXPORT jlong JNICALL JVM_CurrentTimeMillis(void *env, void * ignored) {
@@ -260,15 +305,27 @@ JNIEXPORT jlong JNICALL JVM_NanoTime(void *env, void * ignored) {
     return Java_java_lang_System_nanoTime(env, ignored);
 }
 
-JNIEXPORT jlong JNICALL JVM_GetNanoTimeAdjustment(void *env, void * ignored, jlong offset_secs) {
+JNIEXPORT jlong JNICALL JVM_GetNanoTimeAdjustment(void* env, void* ignored, jlong offset_secs) {
     int64_t maxDiffSecs = 0x0100000000LL;
     int64_t minDiffSecs = -maxDiffSecs;
+#ifdef _WIN32
+    FILETIME ft;
+    ULARGE_INTEGER uli;
+
+    GetSystemTimeAsFileTime(&ft);
+    uli.LowPart = ft.dwLowDateTime;
+    uli.HighPart = ft.dwHighDateTime;
+
+    int64_t now = uli.QuadPart - 116444736000000000ULL;
+    int64_t seconds = now / 10000000LL;
+    int64_t nanos = (now % 10000000LL) * 100;
+#else
     struct timeval time;
     int status = gettimeofday(&time, NULL);
 
     int64_t seconds = time.tv_sec;
     int64_t nanos = time.tv_usec * 1000;
-
+#endif
     int64_t diff = seconds - offset_secs;
     if (diff >= maxDiffSecs || diff <= minDiffSecs) {
         return -1;
@@ -300,14 +357,22 @@ JNIEXPORT void JNICALL JVM_Halt(int retcode) {
 JNIEXPORT void JNICALL JVM_BeforeHalt() {
 }
 
-JNIEXPORT int JNICALL JVM_GetLastErrorString(char *buf, int len) {
-    const char *s;
+JNIEXPORT int JNICALL JVM_GetLastErrorString(char* buf, int len) {
+    const char* s;
     size_t n;
 
     if (errno == 0) {
+        buf[0] = '\0';
         return 0;
     }
 
+#ifdef _WIN32
+    if (strerror_s(buf, len, errno) != 0) {
+        buf[0] = '\0';
+        return -1;
+    }
+    n = strlen(buf);
+#else
     s = strerror(errno);
     n = strlen(s);
     if (n >= len) {
@@ -316,6 +381,7 @@ JNIEXPORT int JNICALL JVM_GetLastErrorString(char *buf, int len) {
 
     strncpy(buf, s, n);
     buf[n] = '\0';
+#endif
     return n;
 }
 
@@ -428,4 +494,10 @@ JNIEXPORT int jio_fprintf(FILE *fp, const char *fmt, ...) {
     return len;
 }
 #endif
+#endif
+
+#ifdef _WIN32
+void JVM_RaiseSignal(int sig) {
+	RaiseException(sig, 0, 0, NULL);
+}
 #endif
