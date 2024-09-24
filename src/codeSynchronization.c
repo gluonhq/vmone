@@ -24,8 +24,12 @@
  * questions.
  */
 
-void codeSynchronization_clearCache(long unsigned codeStart, long unsigned codeSize){
-    long unsigned  codeEnd = codeStart + codeSize;
-    __builtin___clear_cache((char *) codeStart, (char *) codeEnd);
+void codeSynchronization_clearCache(long unsigned codeStart, long unsigned codeSize) {
+    long unsigned codeEnd = codeStart + codeSize;
+#ifdef _WIN64
+    (void)codeStart;
+    (void)codeEnd;
+#else
+    __builtin___clear_cache((char*)codeStart, (char*)codeEnd);
+#endif
 }
-

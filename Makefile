@@ -16,10 +16,11 @@ else ifeq ($(shell uname), Darwin)
     OS := macosx
     CC = gcc
     CFLAGS = -DDARWIN $(INCLUDE_FLAGS) 
-else ifeq ($(shell uname), MINGW32_NT)
+else ifeq ($(findstring MINGW64_NT, $(shell uname)), MINGW64_NT)
     OS := windows
     CC = gcc
     CFLAGS = -DWIN32 -I$(JAVA)/include -I$(JAVA)/include/win32
+    CFLAGS += -D__int64="long long" -mavx -mxsave
 endif
 
 ifeq ($(TARGET), ios)
@@ -71,10 +72,10 @@ JDKLIB = /tmp/libjdk.a
 TEMP_DIR = /tmp/extractdir
 
 ifeq ($(OS), windows)
-    JDKLIB := C:/path/to/libjdk.lib
-    LIB = $(LIBDIR)/windows/staticjdk/lib/libvmone.lib
-    AR = lib
-    ARFLAGS = /OUT:
+    JDKLIB := C:/temp/libjdk.lib
+    LIB = $(LIBDIR)/$(OS)/staticjdk/lib/vmone.lib
+    AR = ar
+    ARFLAGS = rcs
 else
     LIB = $(LIBDIR)/$(OS)/staticjdk/lib/libvmone.a
     AR = ar
@@ -90,8 +91,12 @@ ifeq ($(OS), windows)
 		echo "Including $(JDKLIB) in lib"; \
 		TMPDIR=$(LIBDIR)/$(OS)/temp_objs; \
 		mkdir -p $$TMPDIR; \
+		$(AR) t $(JDKLIB) | xargs -n 1 dirname | sort -u > dirlist.txt; \
+		xargs mkdir -p < dirlist.txt; \
+		cp dirlist.txt $(LIBDIR)/$(OS)/staticjdk/lib; \
 		(cd $$TMPDIR && $(AR) x $(JDKLIB)); \
-		$(AR) $(ARFLAGS) $@ $$TMPDIR/*.o $^; \
+		find D:/a/mobile/mobile/build/windows-x64/support/native -type f -exec mv {} $$TMPDIR \; ; \
+		$(AR) $(ARFLAGS) $@ $$TMPDIR/*.* $^; \
 	else \
 		echo "Existing library not found. Creating static library with object files only."; \
 		$(AR) $(ARFLAGS) $@ $^; \
@@ -101,11 +106,11 @@ else
 		echo "Including $(JDKLIB) in lib"; \
 		TMPDIR=$(LIBDIR)/$(OS)/temp_objs; \
 		mkdir -p $$TMPDIR; \
-		(cd $$TMPDIR && ar x $(JDKLIB)); \
-		ar $(ARFLAGS) $@ $$TMPDIR/*.o $^; \
+		(cd $$TMPDIR && $(AR) x $(JDKLIB)); \
+		$(AR) $(ARFLAGS) $@ $$TMPDIR/*.o $^; \
 	else \
 		echo "Existing library not found. Creating static library with object files only."; \
-		ar $(ARFLAGS) $@ $^; \
+		$(AR) $(ARFLAGS) $@ $^; \
 	fi
 endif
 
@@ -114,6 +119,8 @@ debug:
 	@echo "SRCS: $(SRCS)"
 	@echo "OBJS: $(OBJS)"
 	@echo "OBJDIR: $(OBJDIR)"
+	@echo "JDKLIB: $(JDKLIB)"
+	@echo "JAVA_HOME: $(JAVA)"
 
 
 $(OBJDIR)/$(OS)/%.o: $(SRCDIR)/%.c
@@ -124,10 +131,6 @@ $(OBJDIR)/$(OS)/%.o: $(SRCDIR)/%.c
 $(OBJDIR)/$(OS)/%.o: $(SRCDIR)/darwin/%.m
 	@mkdir -p $(OBJDIR)/$(OS)
 	$(CC) $(CFLAGS) -c $< -o $@
-
-#$(OBJDIR)/$(OS)/%.o: $(SRCDIR)/darwin/%.m
-#@mkdir -p $(OBJDIR)/$(OS)
-#$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(OBJDIR) $(LIBDIR)

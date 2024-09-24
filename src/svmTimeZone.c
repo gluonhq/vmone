@@ -140,14 +140,25 @@ static void customZoneName(LONG bias, char *buffer) {
         gmtOffset = -bias;
         sign = 1;
     }
+#ifdef _WIN64
+    if (gmtOffset != 0) {
+        sprintf_s(buffer, MAX_ZONE_CHAR, "GMT%c%02d:%02d",
+            ((sign >= 0) ? '+' : '-'),
+            gmtOffset / 60,
+            gmtOffset % 60);
+    } else {
+        strcpy_s(buffer, MAX_ZONE_CHAR, "GMT");
+    }
+#else
     if (gmtOffset != 0) {
         sprintf(buffer, "GMT%c%02d:%02d",
-                ((sign >= 0) ? '+' : '-'),
-                gmtOffset / 60,
-                gmtOffset % 60);
+            ((sign >= 0) ? '+' : '-'),
+            gmtOffset / 60,
+            gmtOffset % 60);
     } else {
         strcpy(buffer, "GMT");
     }
+#endif
 }
 
 /*
@@ -183,7 +194,12 @@ static int getWinTimeZone(char *winZoneName)
             customZoneName(dtzi.Bias, winZoneName);
             return VALUE_GMTOFFSET;
         }
+#ifdef _WIN64
+        size_t convertedChars = 0;
+        wcstombs_s(&convertedChars, winZoneName, MAX_ZONE_CHAR, dtzi.TimeZoneKeyName, _TRUNCATE);
+#else
         wcstombs(winZoneName, dtzi.TimeZoneKeyName, MAX_ZONE_CHAR);
+#endif
         return VALUE_KEY;
     }
 
@@ -372,7 +388,11 @@ static int getWinTimeZone(char *winZoneName)
                 /*
                  * found matched record, terminate search
                  */
+#ifdef _WIN64
+                strcpy_s(winZoneName, sizeof(winZoneName), subKeyName);
+#else
                 strcpy(winZoneName, subKeyName);
+#endif
                 break;
             }
         out:
