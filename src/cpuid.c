@@ -38,7 +38,7 @@
 #include <alloca.h>
 #else
 #include <malloc.h>
-#define alloca _alloca
+// #define alloca _alloca
 #endif
 
 #if defined(__x86_64__) || defined(_WIN64)
@@ -73,15 +73,28 @@ int get_cpuid_ecx_1 (unsigned int leaf, unsigned int *eax, unsigned int *ebx, un
 
 #else
 
-#include <intrin.h>
-#include <immintrin.h>
+#include <stdint.h>
+#ifdef _WIN64
+  #include <intrin.h>
+  #include <immintrin.h>
+#else
+  #include <x86intrin.h>
+#endif
 
 // microsoft intrinsic list: https://docs.microsoft.com/en-us/cpp/intrinsics/x64-amd64-intrinsics-list?view=msvc-160
 
 static void read_xem_xcr0(uint32_t *eax, uint32_t *edx) {
-  uint64_t result = _xgetbv(0);
-  *eax = (uint32_t) result;
-  *edx = (uint32_t) (result >> 32);
+#ifdef _WIN64
+    #if defined(__AVX__) || defined(__XSAVE__)
+    uint64_t result = _xgetbv(0);
+    #else
+    uint64_t result = 0;
+    #endif
+#else
+    uint64_t result = __builtin_ia32_xgetbv(0);
+#endif
+    *eax = (uint32_t)result;
+    *edx = (uint32_t)(result >> 32);
 }
 
 // https://docs.microsoft.com/en-us/cpp/intrinsics/cpuid-cpuidex?view=msvc-160

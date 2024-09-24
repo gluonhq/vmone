@@ -19,7 +19,8 @@ else ifeq ($(shell uname), Darwin)
 else ifeq ($(findstring MINGW64_NT, $(shell uname)), MINGW64_NT)
     OS := windows
     CC = gcc
-    CFLAGS = -DWIN32 -I$(JAVA)/include -I$(JAVA)/include/win32 -D__int64="long long"
+    CFLAGS = -DWIN32 -I$(JAVA)/include -I$(JAVA)/include/win32
+    CFLAGS += -D__int64="long long" -mavx -mxsave
 endif
 
 ifeq ($(TARGET), ios)
@@ -94,7 +95,8 @@ ifeq ($(OS), windows)
 		xargs mkdir -p < dirlist.txt; \
 		cp dirlist.txt $(LIBDIR)/$(OS)/staticjdk/lib; \
 		(cd $$TMPDIR && $(AR) x $(JDKLIB)); \
-		$(AR) $(ARFLAGS) $@ $(shell find D:/a/mobile/mobile/build/windows-x64/support/native -type f -name '*.*') $^; \
+		find D:/a/mobile/mobile/build/windows-x64/support/native -type f -exec mv {} $$TMPDIR \; ; \
+		$(AR) $(ARFLAGS) $@ $$TMPDIR/*.* $^; \
 	else \
 		echo "Existing library not found. Creating static library with object files only."; \
 		$(AR) $(ARFLAGS) $@ $^; \
@@ -118,6 +120,7 @@ debug:
 	@echo "OBJS: $(OBJS)"
 	@echo "OBJDIR: $(OBJDIR)"
 	@echo "JDKLIB: $(JDKLIB)"
+	@echo "JAVA_HOME: $(JAVA)"
 
 
 $(OBJDIR)/$(OS)/%.o: $(SRCDIR)/%.c
@@ -128,10 +131,6 @@ $(OBJDIR)/$(OS)/%.o: $(SRCDIR)/%.c
 $(OBJDIR)/$(OS)/%.o: $(SRCDIR)/darwin/%.m
 	@mkdir -p $(OBJDIR)/$(OS)
 	$(CC) $(CFLAGS) -c $< -o $@
-
-#$(OBJDIR)/$(OS)/%.o: $(SRCDIR)/darwin/%.m
-#@mkdir -p $(OBJDIR)/$(OS)
-#$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(OBJDIR) $(LIBDIR)

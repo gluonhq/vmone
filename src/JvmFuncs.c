@@ -32,7 +32,7 @@
 #include <errno.h>
 #include <string.h>
 #include <limits.h>
-#ifdef _WIN32
+#ifdef _WIN64
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <windows.h>
@@ -53,7 +53,7 @@
 #define OS_ERR -1
 
 /* Set by native-image during image build time. Indicates whether the built image is a static binary. */
-#ifdef _WIN32
+#ifdef _WIN64
 int __svm_vm_is_static_binary = 0;  // or 1, depending on static configuration for SVM on Windows
 #else
 extern int __svm_vm_is_static_binary;
@@ -163,7 +163,7 @@ JNIEXPORT int JNICALL JVM_ActiveProcessorCount() {
 #if defined(__linux__) && !defined(ANDROID)
     return linux_active_processor_count();
 #else
-#ifdef _WIN32
+#ifdef _WIN64
     SYSTEM_INFO sysinfo;
     GetSystemInfo(&sysinfo);
     return sysinfo.dwNumberOfProcessors;
@@ -194,7 +194,7 @@ JNIEXPORT void* JNICALL JVM_FindLibraryEntry(void* handle, const char* name) {
         fflush(stderr);
         exit(1);
     } else {
-#ifdef _WIN32
+#ifdef _WIN64
         return GetProcAddress((HMODULE)handle, name);
 #else
         return dlsym(handle, name);
@@ -232,14 +232,16 @@ JNIEXPORT int JNICALL JVM_SetSockOpt(int fd, int level, int optname,
     return setsockopt(fd, level, optname, optval, optlen);
 }
 
-JNIEXPORT int JNICALL JVM_SocketAvailable(int fd, int *pbytes) {
+JNIEXPORT int JNICALL JVM_SocketAvailable(int fd, int* pbytes) {
     int ret;
 
     if (fd < 0)
         return OS_OK;
 
-#ifdef _WIN32
-    RESTARTABLE(ioctlsocket(fd, FIONREAD, pbytes), ret);
+#ifdef _WIN64
+    u_long bytesAvailable;
+    RESTARTABLE(ioctlsocket(fd, FIONREAD, &bytesAvailable), ret);
+    *pbytes = (int)bytesAvailable;
 #else
     RESTARTABLE(ioctl(fd, FIONREAD, pbytes), ret);
 #endif
@@ -248,7 +250,11 @@ JNIEXPORT int JNICALL JVM_SocketAvailable(int fd, int *pbytes) {
 }
 
 JNIEXPORT int JNICALL JVM_SocketClose(int fd) {
+#ifdef _WIN64
+    return closesocket(fd);
+#else
     return close(fd);
+#endif
 }
 
 JNIEXPORT int JNICALL JVM_SocketShutdown(int fd, int howto) {
@@ -262,7 +268,7 @@ JNIEXPORT int JNICALL JVM_InitializeSocketLibrary() {
 }
 
 JNIEXPORT jlong JNICALL Java_java_lang_System_currentTimeMillis(void* env, void* ignored) {
-#ifdef _WIN32
+#ifdef _WIN64
     FILETIME ft;
     ULARGE_INTEGER uli;
 
@@ -281,7 +287,7 @@ JNIEXPORT jlong JNICALL Java_java_lang_System_currentTimeMillis(void* env, void*
 JNIEXPORT jlong JNICALL Java_java_lang_System_nanoTime(void* env, void* ignored) {
     // get implementation from hotspot/os/bsd/os_bsd.cpp
     // for now, just return 1000 * microseconds
-#ifdef _WIN32
+#ifdef _WIN64
     FILETIME ft;
     ULARGE_INTEGER uli;
 
@@ -308,7 +314,7 @@ JNIEXPORT jlong JNICALL JVM_NanoTime(void *env, void * ignored) {
 JNIEXPORT jlong JNICALL JVM_GetNanoTimeAdjustment(void* env, void* ignored, jlong offset_secs) {
     int64_t maxDiffSecs = 0x0100000000LL;
     int64_t minDiffSecs = -maxDiffSecs;
-#ifdef _WIN32
+#ifdef _WIN64
     FILETIME ft;
     ULARGE_INTEGER uli;
 
@@ -366,7 +372,7 @@ JNIEXPORT int JNICALL JVM_GetLastErrorString(char* buf, int len) {
         return 0;
     }
 
-#ifdef _WIN32
+#ifdef _WIN64
     if (strerror_s(buf, len, errno) != 0) {
         buf[0] = '\0';
         return -1;
@@ -496,7 +502,7 @@ JNIEXPORT int jio_fprintf(FILE *fp, const char *fmt, ...) {
 #endif
 #endif
 
-#ifdef _WIN32
+#ifdef _WIN64
 void JVM_RaiseSignal(int sig) {
 	RaiseException(sig, 0, 0, NULL);
 }
