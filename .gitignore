@@ -30,3 +30,8 @@ replay_pid*
 
 # Mac
 .DS_Store
+
+.vscode
+.vs
+
+x64
