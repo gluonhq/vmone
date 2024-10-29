@@ -24,3 +24,6 @@ void JVM_IsUseContainerSupport() {
     fprintf(stderr, "We should never reach here (JVM_IsUseContainerSupport)\n");
 }
 
+ void JVM_RaiseSignal() {
+    fprintf(stderr, "We should never reach here (JVM_RaiseSignal)\n");
+ }
